@@ -1,0 +1,44 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SmartCampus.Core.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SmartCampus.Infra.Configuration
+{
+    public class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollment>
+    {
+        public void Configure(EntityTypeBuilder<Enrollment> builder)
+        {
+            builder.ToTable("Enrollments");
+            builder.HasKey(e => e.EnrollmentId);
+            builder.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasDefaultValue("Enrolled");
+
+            builder.Property(e => e.EnrollmentDate)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            builder.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            builder.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            // Indexes
+            builder.HasIndex(e => new { e.StudentId, e.CourseId })
+               .IsUnique()
+               .HasDatabaseName("IX_Enrollments_Student_Course");
+
+            // Relationships
+            builder.HasOne(e => e.Grade)
+                .WithOne(g => g.Enrollment)
+                .HasForeignKey<Grade>(g => g.EnrollmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+}
