@@ -1,11 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using SmartCampus.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SmartCampus.Infra.Configuration
 {
@@ -30,10 +26,10 @@ namespace SmartCampus.Infra.Configuration
                .HasDatabaseName("IX_Departments_Name");
 
             // Relationships
-            builder.HasOne(d => d.Instructor) 
-                .WithOne(i => i.HeadOfDepartment!)
+            builder.HasOne(d => d.Instructor)
+                .WithOne(i => i.HeadOfDepartment)
                 .HasForeignKey<Department>(d => d.HeadId)
-                .IsRequired()
+                .IsRequired(false) 
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(d => d.Students)

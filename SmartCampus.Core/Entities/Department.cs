@@ -9,7 +9,7 @@ namespace SmartCampus.Core.Entities
         public string Building { get; set; } = string.Empty;
 
         // 1 to 1 relation 
-        public int HeadId {  get; set; }
+        public int? HeadId {  get; set; }
         public Instructor? Instructor { get; set; }
 
         // 1 to m relation 

@@ -1,22 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SmartCampus.Core.Entities;
-using SmartCampus.Infra.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartCampus.Infra.Data
 {
-    public class SmartCampusDbContext :DbContext
+    public class SmartCampusDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     {
         public SmartCampusDbContext(DbContextOptions<SmartCampusDbContext> options)
            : base(options)
         {
         }
         // DbSets - Identity & Academic
-        public DbSet<User> Users { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
@@ -40,39 +35,11 @@ namespace SmartCampus.Infra.Data
         public DbSet<Attendance> Attendances { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(builder);
 
-            // Apply all configurations
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
-            modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
-            modelBuilder.ApplyConfiguration(new StudentConfiguration());
-            modelBuilder.ApplyConfiguration(new InstructorConfiguration());
-            modelBuilder.ApplyConfiguration(new CourseConfiguration());
-            modelBuilder.ApplyConfiguration(new EnrollmentConfiguration());
-            modelBuilder.ApplyConfiguration(new GradeConfiguration());
-            modelBuilder.ApplyConfiguration(new AttendanceConfiguration());
-            modelBuilder.ApplyConfiguration(new NotificationConfiguration());
-
-            // Exam Configurations 
-            modelBuilder.ApplyConfiguration(new QuestionTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new ExamConfiguration());
-            modelBuilder.ApplyConfiguration(new ExamQuestionConfiguration());
-            modelBuilder.ApplyConfiguration(new MCQOptionConfiguration());
-            modelBuilder.ApplyConfiguration(new TrueFalseQuestionConfiguration());
-
-            modelBuilder.ApplyConfiguration(new ExamSubmissionConfiguration());
-            modelBuilder.ApplyConfiguration(new ExamAnswerConfiguration());
-
-            modelBuilder.Entity<User>().HasData(new User
-            {
-                UserId = 1,
-                Username = "admin",
-                Email = "admin@smartcampus.com",
-                PasswordHash = "AQAAAAEAACcQAAAAEB8",
-                Role = "Admin"
-            });
+            builder.ApplyConfigurationsFromAssembly(typeof(SmartCampusDbContext).Assembly);
         }
     }
 }

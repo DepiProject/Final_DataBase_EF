@@ -13,7 +13,7 @@
 
         // 1 to 1 relation 
         public int UserId { get; set; }
-        public User? User { get; set; }
+        public AppUser? User { get; set; }
 
         // 1 to m relation 
         public int DepartmentId { get; set; }

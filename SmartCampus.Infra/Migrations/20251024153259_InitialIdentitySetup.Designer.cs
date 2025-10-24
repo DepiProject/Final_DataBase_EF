@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartCampus.Infra.Data;
 
@@ -11,9 +12,11 @@ using SmartCampus.Infra.Data;
 namespace SmartCampus.Infra.Migrations
 {
     [DbContext(typeof(SmartCampusDbContext))]
-    partial class SmartCampusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251024153259_InitialIdentitySetup")]
+    partial class InitialIdentitySetup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -347,7 +350,7 @@ namespace SmartCampus.Infra.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("HeadId")
+                    b.Property<int>("HeadId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -358,8 +361,7 @@ namespace SmartCampus.Infra.Migrations
                     b.HasKey("DepartmentId");
 
                     b.HasIndex("HeadId")
-                        .IsUnique()
-                        .HasFilter("[HeadId] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("Name")
                         .IsUnique()
@@ -914,7 +916,8 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Instructor", "Instructor")
                         .WithOne("HeadOfDepartment")
                         .HasForeignKey("SmartCampus.Core.Entities.Department", "HeadId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Instructor");
                 });

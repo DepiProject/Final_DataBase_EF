@@ -14,7 +14,7 @@ namespace SmartCampus.Core.Entities
         public Department? HeadOfDepartment { get; set; }
         // 1 to 1 relation 
         public int UserId { get; set; }
-        public User? User { get; set; }
+        public AppUser? User { get; set; }
 
         public int DepartmentId { get; set; }
         public Department? Department { get; set; }
