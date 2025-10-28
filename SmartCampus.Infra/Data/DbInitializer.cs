@@ -13,7 +13,6 @@ public static class DbInitializer
                 await roleManager.CreateAsync(new IdentityRole<int> { Name = role });
         }
 
-        // Create admin if not exist
         if (await userManager.FindByEmailAsync("amal@gmail.com") == null)
         {
             var admin = new AppUser

@@ -10,14 +10,31 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+// =======================
+// Configure Services
+// =======================
 
+// 1. Add Database Context
+builder.Services.AddDbContext<SmartCampusDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// 2. Add Identity
+builder.Services.AddIdentity<AppUser, IdentityRole<int>>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<SmartCampusDbContext>()
+.AddDefaultTokenProviders();
+
+// 3. Add Authentication (JWT)
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
+})
+.AddJwtBearer(options =>
 {
     var jwtSettings = builder.Configuration.GetSection("Jwt");
     options.TokenValidationParameters = new TokenValidationParameters
@@ -35,8 +52,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// 4. Add Authorization
+builder.Services.AddAuthorization();
 
+// 5. Register Application Services
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
+// 6. Add Controllers
+builder.Services.AddControllers();
+
+// 7. Add Swagger
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "SmartCampus.API", Version = "v1" });
@@ -67,57 +94,14 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-builder.Services.AddAuthorization();
-
-
-builder.Services.AddDbContext<SmartCampusDbContext>(options =>
-               options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-
-// Add Identity
-builder.Services.AddIdentity<AppUser, IdentityRole<int>>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 6;
-    options.User.RequireUniqueEmail = true;
-})
-.AddEntityFrameworkStores<SmartCampusDbContext>()
-.AddDefaultTokenProviders();
-
-
-
-
-
-
-builder.Services.AddControllers();
-
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
-
+// =======================
+// Build App
+// =======================
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// =======================
+// Configure Middleware
+// =======================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -125,11 +109,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
+// =======================
+// Seed Database
+// =======================
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -138,6 +126,5 @@ using (var scope = app.Services.CreateScope())
 
     await DbInitializer.SeedAsync(userManager, roleManager);
 }
-
 
 app.Run();
