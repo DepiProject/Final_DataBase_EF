@@ -5,7 +5,6 @@ public static class DbInitializer
 {
     public static async Task SeedAsync(UserManager<AppUser> userManager, RoleManager<IdentityRole<int>> roleManager)
     {
-        // Create roles if not exist
         var roles = new[] { "Admin", "Instructor", "Student" };
         foreach (var role in roles)
         {

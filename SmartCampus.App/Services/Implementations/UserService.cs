@@ -25,7 +25,7 @@ namespace SmartCampus.App.Services.Implementations
 
             var user = new AppUser
             {
-                UserName = dto.Email,
+                UserName = dto.UserName,
                 Email = dto.Email,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
@@ -44,6 +44,8 @@ namespace SmartCampus.App.Services.Implementations
                 {
                     FullName = $"{dto.FirstName} {dto.LastName}",
                     StudentCode = dto.StudentCode ?? $"S{user.Id}",
+                    ContactNumber = dto.ContactNumber,
+                    Level = dto.Level,
                     UserId = user.Id,
                     DepartmentId = dto.DepartmentId ?? throw new Exception("DepartmentId required for Student")
                 });
@@ -53,6 +55,7 @@ namespace SmartCampus.App.Services.Implementations
                 await _userRepository.CreateInstructor(new Instructor
                 {
                     FullName = $"{dto.FirstName} {dto.LastName}",
+                    ContactNumber= dto.ContactNumber,
                     UserId = user.Id,
                     DepartmentId = dto.DepartmentId ?? throw new Exception("DepartmentId required for Instructor")
                 });
