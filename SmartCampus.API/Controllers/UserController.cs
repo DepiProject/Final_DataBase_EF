@@ -21,7 +21,7 @@ namespace SmartCampus.API.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
-        {
+        { 
             var user = await _userService.CreateUserAsync(dto);
             if (user == null)
                 return BadRequest(new { message = "Failed to create user" });

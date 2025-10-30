@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SmartCampus.App.Interfaces;
 using SmartCampus.App.Services.Implementations;
 using SmartCampus.App.Services.IServices;
 using SmartCampus.Core.Entities;
 using SmartCampus.Infra.Data;
+using SmartCampus.Infra.Repositories;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,6 +60,8 @@ builder.Services.AddAuthorization();
 // 5. Register Application Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 
 // 6. Add Controllers
 builder.Services.AddControllers();

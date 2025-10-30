@@ -1,21 +1,22 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using SmartCampus.App.DTOs;
+using SmartCampus.App.Interfaces;
 using SmartCampus.App.Services.IServices;
 using SmartCampus.Core.Entities;
-using SmartCampus.Infra.Data;
+
 
 namespace SmartCampus.App.Services.Implementations
 {
     public class UserService : IUserService
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly SmartCampusDbContext _db;
+        private readonly IUserRepository _userRepository;
 
-        public UserService(UserManager<AppUser> userManager, SmartCampusDbContext db)
+        public UserService(UserManager<AppUser> userManager, IUserRepository userRepository)
         {
             _userManager = userManager;
-            _db = db;
+            _userRepository = userRepository;
         }
         public async Task<AppUser> CreateUserAsync(CreateUserDto dto)
         {
@@ -39,7 +40,7 @@ namespace SmartCampus.App.Services.Implementations
 
             if (dto.Role == "Student")
             {
-                await _db.Students.AddAsync(new Student
+                await _userRepository.CreateStudent(new Student
                 {
                     FullName = $"{dto.FirstName} {dto.LastName}",
                     StudentCode = dto.StudentCode ?? $"S{user.Id}",
@@ -49,15 +50,13 @@ namespace SmartCampus.App.Services.Implementations
             }
             else if (dto.Role == "Instructor")
             {
-                await _db.Instructors.AddAsync(new Instructor
+                await _userRepository.CreateInstructor(new Instructor
                 {
                     FullName = $"{dto.FirstName} {dto.LastName}",
                     UserId = user.Id,
                     DepartmentId = dto.DepartmentId ?? throw new Exception("DepartmentId required for Instructor")
                 });
             }
-
-            await _db.SaveChangesAsync();
             return user;
 
         }
