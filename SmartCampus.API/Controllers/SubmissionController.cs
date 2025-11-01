@@ -1,46 +1,70 @@
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
-//using SmartCampus.App.Dtos;
-//using SmartCampus.App.Services.IServices;
+using Microsoft.AspNetCore.Mvc;
+using SmartCampus.App.Dtos;
+using SmartCampus.App.Services.IServices;
 
-//namespace SmartCampus.Controllers
-//{
-//    [Route("api/[controller]")]
-//    [ApiController]
-//    public class SubmissionController : ControllerBase
-//    {
-//        private readonly ISubmissionService _service;
-//        public SubmissionController (ISubmissionService service)
-//        {
-//            _service = service;
-//        }
+namespace SmartCampus.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class SubmissionController : ControllerBase
+    {
+        private readonly ISubmissionService _submissionService;
 
+        public SubmissionController(ISubmissionService submissionService)
+        {
+            _submissionService = submissionService;
+        }
 
-//        [HttpPost("Start")]
+   
+        [HttpPost("start")]
+        public async Task<IActionResult> StartExam([FromQuery] int examId, [FromQuery] int studentId)
+        {
+            try
+            {
+                var submission = await _submissionService.StartExamAsync(examId, studentId);
+                return Ok(new
+                {
+                    message = "Exam started successfully.",
+                    submissionId = submission.SubmissionId,
+                    examId = submission.ExamId,
+                    studentId = submission.StudentId,
+                    startedAt = submission.StartedAt
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
-//        public async Task<IActionResult>StartExam(int examId, int studentId)
-//        {
-//            var res = await _service.StartExamAsync(examId, studentId);
-//            return Ok(res);
-//        }
+       
+        [HttpPost("submit")]
+        public async Task<IActionResult> SubmitExam([FromBody] SubmitExamDto dto)
+        {
+            try
+            {
+                var result = await _submissionService.SubmitExamAsync(dto);
+                return Ok(new
+                {
+                    message = "Exam submitted successfully.",
+                    result
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
+        [HttpGet("result/{examId}/{studentId}")]
+        public async Task<IActionResult> GetExamResult(int examId, int studentId)
+        {
+            var result = await _submissionService.GetExamResultAsync(examId, studentId);
+            if (result == null)
+                return NotFound(new { message = "Exam submission not found." });
 
-//        [HttpPost("Submit")]
+            return Ok(result);
+        }
+    }
+}
 
-//        public async Task<IActionResult>SubmitExam([FromBody] SubmitExamDto dto)
-//        {
-//            var res = await _service.SubmitExamAsync(dto);
-//            return Ok(res);
-
-//        }
-
-//        [HttpGet("result/{examId}/{studentId}")]
-//        public async Task<IActionResult> GetExamResult(int examId, int studentId)
-//        {
-//            var result = await _service.GetExamResultAsync(examId, studentId);
-//            if (result == null) return NotFound("Exam submission not found.");
-//            return Ok(result);
-//        }
-
-//    }
-//}
