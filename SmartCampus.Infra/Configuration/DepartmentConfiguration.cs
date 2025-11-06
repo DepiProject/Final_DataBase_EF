@@ -26,25 +26,31 @@ namespace SmartCampus.Infra.Configuration
                .HasDatabaseName("IX_Departments_Name");
 
             // Relationships
+            // Department Head MUST be SetNull 
             builder.HasOne(d => d.Instructor)
                 .WithOne(i => i.HeadOfDepartment)
                 .HasForeignKey<Department>(d => d.HeadId)
-                .IsRequired(false) 
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
 
+            // Department → Instructors - SetNull (instructor can exist without dept)
+            builder.HasMany(d => d.Instructors)
+                .WithOne(i => i.Department)
+                .HasForeignKey(i => i.DepartmentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Department → Students - SetNull (student can exist without dept)
             builder.HasMany(d => d.Students)
                 .WithOne(s => s.Department)
-                .HasForeignKey(s => s.DepartmentId);
+                .HasForeignKey(s => s.DepartmentId)
+                .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasMany(d => d.Instructors)
-                .WithOne(i => i.Department!) 
-                .HasForeignKey(i => i.DepartmentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
+            // Department → Courses - SetNull (course can exist without dept)
             builder.HasMany(d => d.Courses)
-                .WithOne(c => c.Department!) 
+                .WithOne(c => c.Department)
                 .HasForeignKey(c => c.DepartmentId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
+
+
         }
     }
 }

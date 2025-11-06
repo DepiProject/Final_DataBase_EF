@@ -14,7 +14,7 @@
         public int InstructorId { get; set; }
         public Instructor? Instructor { get; set; }
 
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
         public Department? Department { get; set; }
 
         public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();

@@ -30,20 +30,17 @@ namespace SmartCampus.Infra.Configuration
                 .HasDatabaseName("IX_Instructors_UserId");
 
             // Relationships
-            builder.HasMany(i => i.Courses)
-                .WithOne(c => c.Instructor)
-                .HasForeignKey(c => c.InstructorId)
+            // Instructor → Grades - Restrict (preserve grades if instructor deleted)
+            builder.HasMany(i => i.Grades)
+                .WithOne(g => g.Instructor)
+                .HasForeignKey(g => g.EnteredBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(g => g.Grades)
-                .WithOne(i => i.Instructor)
-                .HasForeignKey(i => i.EnteredBy)
-                .OnDelete(DeleteBehavior.Restrict);
-
+            // Instructor → ExamSubmissions - SetNull (can remove grader reference)
             builder.HasMany(i => i.ExamSubmissions)
                 .WithOne(es => es.Instructor)
                 .HasForeignKey(es => es.GradedBy)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

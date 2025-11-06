@@ -23,6 +23,13 @@ namespace SmartCampus.Infra.Configuration
 
             builder.HasIndex(s => s.StudentId)
                 .HasDatabaseName("IX_ExamSubmissions_StudentId");
+
+            // Relations
+            // ExamSubmission → ExamAnswers - Cascade OK (owned by submission)
+            builder.HasMany(es => es.Answers)
+                .WithOne(a => a.Submission)
+                .HasForeignKey(a => a.SubmissionId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

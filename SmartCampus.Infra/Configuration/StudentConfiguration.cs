@@ -37,19 +37,22 @@ namespace SmartCampus.Infra.Configuration
                    .HasName("AK_StudentCode");
 
             // Relationships
-            builder.HasMany(s => s.ExamSubmissions)
-                .WithOne(es => es.Student)
-                .HasForeignKey(es => es.StudentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
+            // Student → Enrollments - NO CASCADE (would conflict with Course cascade)
             builder.HasMany(s => s.Enrollments)
                 .WithOne(e => e.Student)
                 .HasForeignKey(e => e.StudentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Student → Attendances - NO CASCADE (would conflict with Course cascade)
             builder.HasMany(s => s.Attendances)
                 .WithOne(a => a.Student)
                 .HasForeignKey(a => a.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Student → ExamSubmissions - NO CASCADE (would conflict with Exam cascade)
+            builder.HasMany(s => s.ExamSubmissions)
+                .WithOne(es => es.Student)
+                .HasForeignKey(es => es.StudentId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

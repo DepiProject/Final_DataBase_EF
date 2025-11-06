@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartCampus.Infra.Data;
 
@@ -11,9 +12,11 @@ using SmartCampus.Infra.Data;
 namespace SmartCampus.Infra.Migrations
 {
     [DbContext(typeof(SmartCampusDbContext))]
-    partial class SmartCampusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251101141300_UpdateDeleteBehaviorForDept")]
+    partial class UpdateDeleteBehaviorForDept
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -267,7 +270,7 @@ namespace SmartCampus.Infra.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int?>("StudentId")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
                     b.HasKey("AttendanceId");
@@ -276,8 +279,7 @@ namespace SmartCampus.Infra.Migrations
 
                     b.HasIndex("StudentId", "CourseId", "Date")
                         .IsUnique()
-                        .HasDatabaseName("IX_Attendances_UniqueRecord")
-                        .HasFilter("[StudentId] IS NOT NULL");
+                        .HasDatabaseName("IX_Attendances_UniqueRecord");
 
                     b.ToTable("Attendances", (string)null);
                 });
@@ -397,7 +399,7 @@ namespace SmartCampus.Infra.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasDefaultValue("Enrolled");
 
-                    b.Property<int?>("StudentId")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -411,8 +413,7 @@ namespace SmartCampus.Infra.Migrations
 
                     b.HasIndex("StudentId", "CourseId")
                         .IsUnique()
-                        .HasDatabaseName("IX_Enrollments_Student_Course")
-                        .HasFilter("[StudentId] IS NOT NULL");
+                        .HasDatabaseName("IX_Enrollments_Student_Course");
 
                     b.ToTable("Enrollments", (string)null);
                 });
@@ -486,7 +487,7 @@ namespace SmartCampus.Infra.Migrations
                     b.Property<int?>("SelectedOptionId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SubmissionId")
+                    b.Property<int>("SubmissionId")
                         .HasColumnType("int");
 
                     b.Property<bool?>("TrueFalseAnswer")
@@ -500,8 +501,7 @@ namespace SmartCampus.Infra.Migrations
 
                     b.HasIndex("SubmissionId", "QuestionId")
                         .IsUnique()
-                        .HasDatabaseName("IX_ExamAnswers_Submission_Question")
-                        .HasFilter("[SubmissionId] IS NOT NULL");
+                        .HasDatabaseName("IX_ExamAnswers_Submission_Question");
 
                     b.ToTable("ExamAnswers", (string)null);
                 });
@@ -548,7 +548,7 @@ namespace SmartCampus.Infra.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubmissionId"));
 
-                    b.Property<int?>("ExamId")
+                    b.Property<int>("ExamId")
                         .HasColumnType("int");
 
                     b.Property<int?>("GradedBy")
@@ -561,7 +561,7 @@ namespace SmartCampus.Infra.Migrations
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("StudentId")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("SubmittedAt")
@@ -576,8 +576,7 @@ namespace SmartCampus.Infra.Migrations
 
                     b.HasIndex("ExamId", "StudentId")
                         .IsUnique()
-                        .HasDatabaseName("IX_ExamSubmissions_Exam_Student")
-                        .HasFilter("[ExamId] IS NOT NULL AND [StudentId] IS NOT NULL");
+                        .HasDatabaseName("IX_ExamSubmissions_Exam_Student");
 
                     b.ToTable("ExamSubmissions", (string)null);
                 });
@@ -886,7 +885,8 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Student", "Student")
                         .WithMany("Attendances")
                         .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Course");
 
@@ -898,7 +898,7 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Department", "Department")
                         .WithMany("Courses")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SmartCampus.Core.Entities.Instructor", "Instructor")
                         .WithMany("Courses")
@@ -916,7 +916,7 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Instructor", "Instructor")
                         .WithOne("HeadOfDepartment")
                         .HasForeignKey("SmartCampus.Core.Entities.Department", "HeadId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Instructor");
                 });
@@ -932,7 +932,8 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Student", "Student")
                         .WithMany("Enrollments")
                         .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Course");
 
@@ -944,7 +945,7 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Course", "Course")
                         .WithMany("Exams")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Course");
@@ -966,7 +967,8 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.ExamSubmission", "Submission")
                         .WithMany("Answers")
                         .HasForeignKey("SubmissionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Question");
 
@@ -997,17 +999,19 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Exam", "Exam")
                         .WithMany("ExamSubmissions")
                         .HasForeignKey("ExamId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SmartCampus.Core.Entities.Instructor", "Instructor")
                         .WithMany("ExamSubmissions")
                         .HasForeignKey("GradedBy")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SmartCampus.Core.Entities.Student", "Student")
                         .WithMany("ExamSubmissions")
                         .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Exam");
 
@@ -1040,7 +1044,7 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Department", "Department")
                         .WithMany("Instructors")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SmartCampus.Core.Entities.AppUser", "User")
                         .WithOne("Instructor")
@@ -1069,7 +1073,7 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.AppUser", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -1080,7 +1084,7 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Department", "Department")
                         .WithMany("Students")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SmartCampus.Core.Entities.AppUser", "User")
                         .WithOne("Student")

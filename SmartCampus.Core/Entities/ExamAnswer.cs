@@ -8,7 +8,7 @@
         public bool? IsCorrect { get; set; }
         public decimal? PointsAwarded { get; set; }
 
-        public int SubmissionId { get; set; }
+        public int? SubmissionId { get; set; }
         public ExamSubmission? Submission { get; set; }
 
         public int QuestionId { get; set; }

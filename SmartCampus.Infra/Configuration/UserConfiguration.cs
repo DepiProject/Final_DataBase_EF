@@ -26,21 +26,23 @@ namespace SmartCampus.Infra.Configuration
             builder.Property(u => u.UpdatedAt)
                 .HasDefaultValueSql("GETUTCDATE()");
 
-            // Relationships
+            // User → Student (1-to-1) - Cascade OK (only one path)
             builder.HasOne(u => u.Student)
                 .WithOne(s => s.User)
                 .HasForeignKey<Student>(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // User → Instructor (1-to-1) - Cascade OK (only one path)
             builder.HasOne(u => u.Instructor)
                 .WithOne(i => i.User)
                 .HasForeignKey<Instructor>(i => i.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // User → Notifications - Cascade OK (only one path)
             builder.HasMany(u => u.Notifications)
                 .WithOne(n => n.User)
                 .HasForeignKey(n => n.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

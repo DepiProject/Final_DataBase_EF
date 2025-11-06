@@ -39,15 +39,17 @@ namespace SmartCampus.Infra.Configuration
                 .HasDatabaseName("IX_Exams_ExamDate");
 
             // Relationships
+            // Exam → ExamQuestions - Cascade OK (owned by exam)
             builder.HasMany(e => e.ExamQuestions)
                 .WithOne(eq => eq.Exam)
                 .HasForeignKey(eq => eq.ExamId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Exam → ExamSubmissions - Restrict (preserve submissions)
             builder.HasMany(e => e.ExamSubmissions)
                 .WithOne(es => es.Exam)
                 .HasForeignKey(es => es.ExamId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

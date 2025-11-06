@@ -16,7 +16,7 @@
         public AppUser? User { get; set; }
 
         // 1 to m relation 
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
         public Department? Department { get; set; }
 
         public ICollection<ExamSubmission> ExamSubmissions {  get; set; }= new List<ExamSubmission>();

@@ -31,6 +31,7 @@ namespace SmartCampus.Infra.Configuration
                .HasDatabaseName("IX_Enrollments_Student_Course");
 
             // Relationships
+            // Enrollment → Grade (1-to-1) - Cascade OK (only path to Grade)
             builder.HasOne(e => e.Grade)
                 .WithOne(g => g.Enrollment)
                 .HasForeignKey<Grade>(g => g.EnrollmentId)

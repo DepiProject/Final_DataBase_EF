@@ -59,7 +59,7 @@ namespace SmartCampus.API.Controllers
         //    return Ok(updatedProject);
         //}
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteDepartment(int id)
         {

@@ -78,6 +78,7 @@ namespace SmartCampus.App.Services.Implementations
         }
         public async Task<bool> DeleteDepartment(int id)
         {
+
             var department = await _DepartmentRepo.GetDepartmentById(id);
             if (department == null)
                 return false;

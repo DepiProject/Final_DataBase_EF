@@ -24,6 +24,7 @@ namespace SmartCampus.Infra.Repositories
         {
             return await _context.Departments.FindAsync(id);
         }
+
         public async Task<Department?> AddDepartment(Department department)
         {
             _context.Departments.Add(department);

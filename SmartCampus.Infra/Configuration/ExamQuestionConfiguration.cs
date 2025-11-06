@@ -23,17 +23,26 @@ namespace SmartCampus.Infra.Configuration
                 .IsRequired();
 
             // Relationships
-            builder.HasOne(q => q.TrueFalseQuestion)
+            // ExamQuestion → QuestionType - Restrict (preserve question types)
+            builder.HasOne(eq => eq.QuestionType)
+                .WithMany(qt => qt.ExamQuestions)
+                .HasForeignKey(eq => eq.TypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ExamQuestion → TrueFalseQuestion (1-to-1) - Cascade OK
+            builder.HasOne(eq => eq.TrueFalseQuestion)
                 .WithOne(tf => tf.ExamQuestion)
                 .HasForeignKey<TrueFalseQuestion>(tf => tf.QuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(q => q.Options)
+            // ExamQuestion → MCQOptions - Cascade OK
+            builder.HasMany(eq => eq.Options)
                 .WithOne(o => o.ExamQuestion)
                 .HasForeignKey(o => o.QuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(q => q.Answers)
+            // ExamQuestion → ExamAnswers - Restrict (preserve student answers)
+            builder.HasMany(eq => eq.Answers)
                 .WithOne(a => a.Question)
                 .HasForeignKey(a => a.QuestionId)
                 .OnDelete(DeleteBehavior.Restrict);
