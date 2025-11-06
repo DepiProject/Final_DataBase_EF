@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using SmartCampus.App.DTOs;
 using SmartCampus.App.Interfaces;
 using SmartCampus.App.Services.IServices;

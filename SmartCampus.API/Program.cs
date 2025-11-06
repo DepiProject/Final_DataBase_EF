@@ -8,6 +8,7 @@ using SmartCampus.App.Services.IServices;
 using SmartCampus.Core.Entities;
 using SmartCampus.Infra.Data;
 using SmartCampus.Infra.Repositories;
+using SmartCampus.Infra.Repositories.Implementations;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);

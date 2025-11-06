@@ -19,13 +19,13 @@ namespace SmartCampus.Infra.Repositories.Implementations
             return await _context.ExamSubmissions
                 .Include(s => s.Answers)
                 .Include(s => s.Exam)
-                    .ThenInclude(e => e.Questions)
+                    .ThenInclude(e => e.ExamQuestions)
                         .ThenInclude(q => q.QuestionType)
                 .Include(s => s.Exam)
-                    .ThenInclude(e => e.Questions)
+                    .ThenInclude(e => e.ExamQuestions)
                         .ThenInclude(q => q.TrueFalseQuestion)
                 .Include(s => s.Exam)
-                    .ThenInclude(e => e.Questions)
+                    .ThenInclude(e => e.ExamQuestions)
                         .ThenInclude(q => q.Options)
                 .FirstOrDefaultAsync(s => s.ExamId == examId && s.StudentId == studentId);
         }

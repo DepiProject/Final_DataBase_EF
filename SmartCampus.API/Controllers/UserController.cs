@@ -1,9 +1,6 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartCampus.App.DTOs;
-using SmartCampus.App.Services.Implementations;
 using SmartCampus.App.Services.IServices;
 
 namespace SmartCampus.API.Controllers

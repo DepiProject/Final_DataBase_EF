@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SmartCampus.App.DTOs;
 using SmartCampus.App.Services.IServices;
@@ -49,16 +47,6 @@ namespace SmartCampus.API.Controllers
             var updatedDepartment = await _departmentService.UpdateDepartment(id,dto);
             return Ok(updatedDepartment);
         }
-
-        //[HttpPatch("{id}/description")]
-        //public async Task<ActionResult<TaskDto>> ChangeProjectDescription(int id, UpdateProjectDescriptionDto dto)
-        //{
-        //    var updatedProject = await _projectService.UpdateProjectDescription(id, dto.Description);
-        //    if (updatedProject == null) return NotFound();
-
-        //    return Ok(updatedProject);
-        //}
-
         //[Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteDepartment(int id)
