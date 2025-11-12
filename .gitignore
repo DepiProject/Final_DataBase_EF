@@ -1,12 +1,4 @@
 .vs
 */bin
 */obj
-SmartCampus.Infra.csproj
-SmartCampus.sln
-SmartCampus.API/appsettings.Development.json
-SmartCampus.API/Properties
-SmartCampus.API.csproj
-SmartCampus.Core.csproj
-SmartCampus.App.csproj
-SmartCampus.API/SmartCampus.API.http
-SmartCampus.API/SmartCampus.API.csproj.user
+
