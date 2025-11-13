@@ -18,7 +18,7 @@ namespace SmartCampus.API.Controllers
             _userService = userService;
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
         {

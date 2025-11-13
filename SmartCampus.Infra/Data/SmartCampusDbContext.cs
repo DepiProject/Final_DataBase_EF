@@ -32,7 +32,9 @@ namespace SmartCampus.Infra.Data
         public DbSet<ExamAnswer> ExamAnswers { get; set; }
 
         // DbSets - Tracking
+       
         public DbSet<Attendance> Attendances { get; set; }
+
         public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
