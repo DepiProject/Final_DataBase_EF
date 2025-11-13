@@ -4,7 +4,7 @@
     {
         public int AttendanceId { get; set; }
         public DateTime Date { get; set; }
-        public string Status { get; set; } = string.Empty; // Present, Absent
+        public string Status { get; set; } = string.Empty; // Present, Absent0
 
         public int CourseId { get; set; }
         public Course? Course { get; set; }
