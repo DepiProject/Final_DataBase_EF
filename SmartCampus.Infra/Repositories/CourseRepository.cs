@@ -59,7 +59,70 @@ namespace SmartCampus.Infra.Repositories
             return false;
         }
 
+       public async Task<IEnumerable<Course>> GetCoursesByInstructorId(int instructorId)
+        {
+            return await _context.Courses.Include(c => c.Instructor)
+    .Include(c => c.Department)
+    .Where(c => c.InstructorId == instructorId).ToListAsync();
+        }
+
+   public async Task<Course>GetEnrollmentStudentsByCourseID(int CourseID)
+        {
+            return await _context.Courses
+                .Where(e => e.CourseId == CourseID)
+                .Include(e => e.Enrollments)
+                .ThenInclude(en => en.Student)
+                .FirstOrDefaultAsync(c => c.CourseId == CourseID);
+          
+        }
+
+  public async  Task<IEnumerable<Course>>GetAllCoursesByDepartmentID(int DepartmentId)
+        {
+           return await _context.Courses
+                .Include(c => c.Department)
+                .Where(c => c.DepartmentId == DepartmentId)
+                .ToListAsync(); 
+        }
+
+public async Task<Enrollment?> AddEnrollCourse(Enrollment enrollment)
+        {
+            _context.Enrollments.Add(enrollment);
+            await _context.SaveChangesAsync();
+            return enrollment;
+        }
 
 
+        public async Task<bool> RemoveEnrollCourse(int enrollmentId)
+        {
+            var enrollmentcouse = await _context.Enrollments.FindAsync(enrollmentId);
+            if (enrollmentcouse != null)
+            {
+                _context.Enrollments.Remove(enrollmentcouse);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
+       public async Task<IEnumerable<Enrollment>>GetEnrollmentsByStudentId(int studentId)
+        {
+           var enrollments = await _context.Enrollments
+                .Include(c => c.Student)
+                .Include(c => c.Course)
+                .Where(e => e.StudentId == studentId)
+                .ToListAsync();
+            return enrollments;
+        }
+
+        public async Task<IEnumerable<Enrollment?>> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId)
+        { 
+            var enrollments = await _context.Enrollments
+                .Include(e => e.Student)
+                .Include(e => e.Course)
+                .Where(e => e.StudentId == studentId && e.CourseId == courseId)
+                .ToListAsync();
+            return enrollments;
+        }
+           
     }
 }

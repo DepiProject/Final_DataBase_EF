@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartCampus.Infra.Data;
 
@@ -11,9 +12,11 @@ using SmartCampus.Infra.Data;
 namespace SmartCampus.Infra.Migrations
 {
     [DbContext(typeof(SmartCampusDbContext))]
-    partial class SmartCampusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251112213132_newdatabase")]
+    partial class newdatabase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
