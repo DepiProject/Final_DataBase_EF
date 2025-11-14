@@ -5,6 +5,9 @@ using SmartCampus.App.DTOs;
 using SmartCampus.App.Services.Implementations;
 using SmartCampus.App.Services.IServices;
 
+using SmartCampus.Core.Entities;
+
+
 namespace SmartCampus.API.Controllers
 {
     [Route("api/[controller]")]
@@ -49,6 +52,50 @@ namespace SmartCampus.API.Controllers
             var deleted = await _courseService.DeleteCourse(id);
             if (!deleted) return NotFound();
             return Ok("Course deleted Succesfully");
+        }
+
+        [HttpPost]
+        [Route("EnrollCourse")]
+        public async Task<ActionResult<CreateEnrollmentDTO>> EnrollCourse(CreateEnrollmentDTO dto)
+        {
+            var enrollment = await _courseService.AddEnrollCourse(dto);
+            return Ok("Course enrolled Succesfully");
+        }
+        [HttpDelete]
+        [Route("RemoveEnrollment/{enrollmentId}")]
+        public async Task<ActionResult> RemoveEnrollCourse(int enrollmentId)
+        {
+            var removed = await _courseService.RemoveEnrollCourse(enrollmentId);
+            if (!removed) return NotFound();
+            return Ok("Enrollment removed Succesfully");
+        }
+        [HttpGet]
+        [Route("InstructorCourses/{instructorId}")]
+        public async Task<ActionResult<IEnumerable<EnrollCourseDTO>>> GetCoursesByInstructorId(int instructorId)
+        {
+            var courses = await _courseService.GetCoursesByInstructorId(instructorId);
+            return Ok(courses);
+        }
+        [HttpGet]
+        [Route("CourseEnrollments/{courseId}")]
+        public async Task<ActionResult<IEnumerable<CreateEnrollmentDTO>>> GetEnrollmentStudentsByCourseID(int courseId)
+        {
+            var enrollments = await _courseService.GetEnrollmentStudentsByCourseID(courseId);
+            return Ok(enrollments);
+        }
+        [HttpGet]
+        [Route("DepartmentCourses/{departmentId}")]
+        public async Task<ActionResult<IEnumerable<EnrollCourseDTO>>> GetAllCoursesByDepartmentID(int departmentId)
+        {
+            var courses = await _courseService.GetAllCoursesByDepartmentID(departmentId);
+            return Ok(courses);
+        }
+        [HttpGet]
+        [Route("StudentEnrollments/{studentId}")]
+        public async Task<ActionResult<IEnumerable<EnrollCourseDTO>>> GetEnrollmentsByStudentId(int studentId)
+        {
+            var enrollments = await _courseService.GetEnrollmentsByStudentId(studentId);
+            return Ok(enrollments);
         }
     }
 }

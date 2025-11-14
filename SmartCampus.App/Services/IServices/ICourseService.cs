@@ -11,5 +11,15 @@ namespace SmartCampus.App.Services.IServices
         Task<CreateCourseDTO?> AddCourse(CreateCourseDTO courseDto);
         Task<CourseDTO?> UpdateCourse(int id, CourseDTO courseDto);
         Task<bool> DeleteCourse(int id);
+
+        Task<IEnumerable<InstructorCoursesDTO>> GetCoursesByInstructorId(int instructorId);
+        Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentStudentsByCourseID(int CourseID);
+        Task<IEnumerable<EnrollCourseDTO>> GetAllCoursesByDepartmentID(int DepartmentId);
+        Task<CreateEnrollmentDTO?> AddEnrollCourse(CreateEnrollmentDTO enrollCourseDto);
+        Task<bool> RemoveEnrollCourse(int enrollmentId);
+        Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentsByStudentId(int studentId);
+        Task<IEnumerable<CreateEnrollmentDTO>> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId);
+
+
     }
 }

@@ -14,5 +14,12 @@ namespace SmartCampus.App.Interfaces
         Task<Course?> AddCourse(Course course);
         Task<Course?> UpdateCourse(Course course);
         Task<bool> DeleteCourse(int id);
+        Task<IEnumerable<Course>> GetCoursesByInstructorId(int instructorId);
+        Task<Course> GetEnrollmentStudentsByCourseID(int CourseID);
+        Task<IEnumerable<Course>> GetAllCoursesByDepartmentID(int DepartmentId);
+        Task<Enrollment?> AddEnrollCourse(Enrollment enrollment);
+        Task<bool> RemoveEnrollCourse(int enrollmentId);
+        Task<IEnumerable<Enrollment>> GetEnrollmentsByStudentId(int studentId);
+        Task<IEnumerable<Enrollment?>> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId);
     }
 }
