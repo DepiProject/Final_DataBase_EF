@@ -1,21 +1,23 @@
 ﻿using SmartCampus.App.DTOs;
-using SmartCampus.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartCampus.App.Services.IServices
 {
     public interface IExamService
     {
+        // Exam CRUD
         Task<IEnumerable<ExamDTO>> GetAllExams();
-        Task<IEnumerable<ExamDTO>> GetAllExamsForCourse(int Id);
-        Task<ExamDTO?> GetExamById(int id, int courseID);
+        Task<IEnumerable<ExamDTO>> GetAllExamsForCourse(int courseId);
+        Task<ExamDTO?> GetExamById(int id, int courseId);
+        Task<ExamWithQuestionsDTO?> GetExamWithQuestions(int id, int courseId);
         Task<CreateExamDto?> AddExam(CreateExamDto dto);
-        //Task<ExamQuestionDto?> AddExamQuestion(ExamQuestionDto examQuestiondto);
-  
-        //Task<bool> DeleteExam(int id, int courseId);
+        Task<ExamDTO?> UpdateExam(int id, int courseId, UpdateExamDto dto);
+        Task<bool> DeleteExam(int id, int courseId);
+
+        // Question CRUD
+        Task<ExamQuestionDTO?> AddExamQuestion(CreateQuestionDto dto);
+        Task<ExamQuestionDTO?> UpdateExamQuestion(int questionId, int examId, UpdateQuestionDto dto);
+        Task<bool> DeleteExamQuestion(int questionId, int examId);
+        Task<ExamQuestionDTO?> GetQuestionById(int questionId, int examId);
+        Task<IEnumerable<ExamQuestionDTO>> GetQuestionsByExamId(int examId);
     }
 }

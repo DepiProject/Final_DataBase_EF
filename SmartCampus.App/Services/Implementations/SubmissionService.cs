@@ -1,10 +1,3 @@
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-
-//using Microsoft.EntityFrameworkCore;
 using SmartCampus.App.Dtos;
 using SmartCampus.App.Interfaces;
 using SmartCampus.App.Services.IServices;

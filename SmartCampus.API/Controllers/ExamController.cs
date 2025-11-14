@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SmartCampus.App.DTOs;
 using SmartCampus.App.Services.IServices;
 
@@ -19,52 +18,205 @@ namespace SmartCampus.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllExams()
         {
-            var exams = await _examService.GetAllExams();
-            return Ok(exams);
-        }
-        [HttpGet("{CourseId}")]
-        public async Task<IActionResult> GetCourseExams(int CourseId)
-        {
-            var exams = await _examService.GetAllExamsForCourse(CourseId);
-            return Ok(exams);
+            try
+            {
+                var exams = await _examService.GetAllExams();
+                return Ok(new { success = true, data = exams });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
         }
 
-        [HttpGet("{id}/{courseId}")]
-        public async Task<IActionResult> GetById(int id, int courseId)
+        [HttpGet("course/{courseId}")]
+        public async Task<IActionResult> GetCourseExams(int courseId)
         {
-            var exam = await _examService.GetExamById(id, courseId);
-            if (exam == null)
-                return NotFound(new { message = "This Course has no Exams" });
-            return Ok(exam);
+            try
+            {
+                var exams = await _examService.GetAllExamsForCourse(courseId);
+                return Ok(new { success = true, data = exams });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
         }
+
+        [HttpGet("{id}/course/{courseId}")]
+        public async Task<IActionResult> GetExamById(int id, int courseId)
+        {
+            try
+            {
+                var exam = await _examService.GetExamById(id, courseId);
+                return Ok(new { success = true, data = exam });
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("{id}/course/{courseId}/with-questions")]
+        public async Task<IActionResult> GetExamWithQuestions(int id, int courseId)
+        {
+            try
+            {
+                var exam = await _examService.GetExamWithQuestions(id, courseId);
+                return Ok(new { success = true, data = exam });
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateExam([FromBody] CreateExamDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { success = false, errors = ModelState });
 
-            var exam = await _examService.AddExam(dto);
-            return Ok(new { message = "Exam created successfully", exam });
+                var exam = await _examService.AddExam(dto);
+                return CreatedAtAction(
+                    nameof(GetExamById),
+                    new { id = exam.CourseId, courseId = exam.CourseId },
+                    new { success = true, message = "Exam created successfully", data = exam }
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
         }
-        //[HttpPost]
-        //public async Task<IActionResult> AddQuestion([FromBody] ExamQuestionDto dto)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
 
-        //    var exam = await _examService.AddExamQuestion(dto);
-        //    return Ok(new { message = "Exam created successfully", exam });
-        //}
+        [HttpPut("{id}/course/{courseId}")]
+        public async Task<IActionResult> UpdateExam(int id, int courseId, [FromBody] UpdateExamDto dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { success = false, errors = ModelState });
 
-        //[HttpDelete("{id}/{courseId}")]
-        //public async Task<IActionResult> DeleteExam(int id, int courseId)
-        //{
-        //    var deleted = await _examService.DeleteExam(id, courseId);
-        //    if (!deleted)
-        //        return NotFound(new { message = "Exam not found" });
+                var exam = await _examService.UpdateExam(id, courseId, dto);
+                return Ok(new { success = true, message = "Exam updated successfully", data = exam });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
 
-        //    return Ok(new { message = "Exam deleted successfully" });
-        //}
+        [HttpDelete("{id}/course/{courseId}")]
+        public async Task<IActionResult> DeleteExam(int id, int courseId)
+        {
+            try
+            {
+                var deleted = await _examService.DeleteExam(id, courseId);
+                if (!deleted)
+                    return NotFound(new { success = false, message = "Exam not found" });
+
+                return Ok(new { success = true, message = "Exam deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+
+        [HttpGet("{examId}/questions")]
+        public async Task<IActionResult> GetExamQuestions(int examId)
+        {
+            try
+            {
+                var questions = await _examService.GetQuestionsByExamId(examId);
+                return Ok(new { success = true, data = questions });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+
+        [HttpGet("{examId}/questions/{questionId}")]
+        public async Task<IActionResult> GetQuestionById(int examId, int questionId)
+        {
+            try
+            {
+                var question = await _examService.GetQuestionById(questionId, examId);
+                return Ok(new { success = true, data = question });
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+        }
+
+
+        [HttpPost("questions")]
+        public async Task<IActionResult> AddQuestion([FromBody] CreateQuestionDto dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { success = false, errors = ModelState });
+
+                var question = await _examService.AddExamQuestion(dto);
+                return CreatedAtAction(
+                    nameof(GetQuestionById),
+                    new { examId = dto.ExamId, questionId = question?.QuestionId },
+                    new { success = true, message = "Question added successfully", data = question }
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+
+        [HttpPut("{examId}/questions/{questionId}")]
+        public async Task<IActionResult> UpdateQuestion(
+            int examId,
+            int questionId,
+            [FromBody] UpdateQuestionDto dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { success = false, errors = ModelState });
+
+                var question = await _examService.UpdateExamQuestion(questionId, examId, dto);
+                return Ok(new { success = true, message = "Question updated successfully", data = question });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{examId}/questions/{questionId}")]
+        public async Task<IActionResult> DeleteQuestion(int examId, int questionId)
+        {
+            try
+            {
+                var deleted = await _examService.DeleteExamQuestion(questionId, examId);
+                if (!deleted)
+                    return NotFound(new { success = false, message = "Question not found" });
+
+                return Ok(new { success = true, message = "Question deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+
     }
 }
