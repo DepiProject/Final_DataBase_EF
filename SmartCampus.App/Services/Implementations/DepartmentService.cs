@@ -7,19 +7,19 @@ namespace SmartCampus.App.Services.Implementations
 {
     public class DepartmentService : IDepartmentService
     {
-        private readonly IDepartmentRepository _DepartmentRepo;
+        private readonly IDepartmentRepository _departmentRepo;
 
-        public DepartmentService(IDepartmentRepository DepartmentRepo)
+        public DepartmentService(IDepartmentRepository departmentRepo)
         {
-            _DepartmentRepo = DepartmentRepo;
+            _departmentRepo = departmentRepo;
         }
-
 
         public async Task<IEnumerable<DepartmentDTO>> GetAllDepartments()
         {
-            var departments = await _DepartmentRepo.GetAllDepartments();
+            var departments = await _departmentRepo.GetAllDepartments();
             return departments.Select(d => new DepartmentDTO
             {
+                Id = d.DepartmentId,
                 Name = d.Name,
                 Building = d.Building,
                 HeadId = d.HeadId
@@ -28,37 +28,45 @@ namespace SmartCampus.App.Services.Implementations
 
         public async Task<DepartmentDTO?> GetDepartmentById(int id)
         {
-            var department = await _DepartmentRepo.GetDepartmentById(id);
+            var department = await _departmentRepo.GetDepartmentById(id);
+            if (department == null) return null;
+
             return new DepartmentDTO
             {
+                Id = department.DepartmentId,
                 Name = department.Name,
                 Building = department.Building,
                 HeadId = department.HeadId
             };
         }
-        public async Task<DepartmentDTO> AddDepartment(DepartmentDTO departmentDto)
+
+        public async Task<DepartmentDTO?> AddDepartment(CreateDepartmentDTO departmentDto)
         {
-            if (departmentDto.HeadId == null) throw new Exception("There is no instructor with this Id");
+            if (departmentDto.HeadId == null)
+                return null;
+
             var department = new Department
             {
-                
                 Name = departmentDto.Name,
                 Building = departmentDto.Building,
                 HeadId = departmentDto.HeadId
             };
 
-            await _DepartmentRepo.AddDepartment(department);
+            var addedDepartment = await _departmentRepo.AddDepartment(department);
+            if (addedDepartment == null) return null;
+
             return new DepartmentDTO
             {
-                Name = departmentDto.Name,
-                Building = departmentDto.Building,
-                HeadId = departmentDto.HeadId
+                Id = addedDepartment.DepartmentId,
+                Name = addedDepartment.Name,
+                Building = addedDepartment.Building,
+                HeadId = addedDepartment.HeadId
             };
         }
 
-        public async Task<DepartmentDTO?> UpdateDepartment(int id, DepartmentDTO departmentDto)
+        public async Task<DepartmentDTO?> UpdateDepartment(int id, UpdateDepartmentDTO departmentDto)
         {
-            var existingDepartment = await _DepartmentRepo.GetDepartmentById(id);
+            var existingDepartment = await _departmentRepo.GetDepartmentById(id);
             if (existingDepartment == null)
                 return null;
 
@@ -66,25 +74,25 @@ namespace SmartCampus.App.Services.Implementations
             existingDepartment.Building = departmentDto.Building;
             existingDepartment.HeadId = departmentDto.HeadId;
 
-            var updatedDepartment = await _DepartmentRepo.UpdateDepartment(existingDepartment);
+            var updatedDepartment = await _departmentRepo.UpdateDepartment(existingDepartment);
+            if (updatedDepartment == null) return null;
 
             return new DepartmentDTO
             {
+                Id = updatedDepartment.DepartmentId,
                 Name = updatedDepartment.Name,
                 Building = updatedDepartment.Building,
                 HeadId = updatedDepartment.HeadId
             };
         }
+
         public async Task<bool> DeleteDepartment(int id)
         {
-
-            var department = await _DepartmentRepo.GetDepartmentById(id);
+            var department = await _departmentRepo.GetDepartmentById(id);
             if (department == null)
                 return false;
 
-            return await _DepartmentRepo.DeleteDepartment(id);
+            return await _departmentRepo.DeleteDepartment(id);
         }
-
-
     }
 }

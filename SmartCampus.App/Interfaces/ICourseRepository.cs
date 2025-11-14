@@ -1,10 +1,4 @@
 ﻿using SmartCampus.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace SmartCampus.App.Interfaces
 {
     public interface ICourseRepository
@@ -14,6 +8,7 @@ namespace SmartCampus.App.Interfaces
         Task<Course?> AddCourse(Course course);
         Task<Course?> UpdateCourse(Course course);
         Task<bool> DeleteCourse(int id);
+
         Task<IEnumerable<Course>> GetCoursesByInstructorId(int instructorId);
         Task<Course> GetEnrollmentStudentsByCourseID(int CourseID);
         Task<IEnumerable<Course>> GetAllCoursesByDepartmentID(int DepartmentId);
