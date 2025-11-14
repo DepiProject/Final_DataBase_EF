@@ -43,7 +43,7 @@ namespace SmartCampus.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<DepartmentDTO>> UpdateDepartment(int id, DepartmentDTO dto)
         {
-            if (id == null) return BadRequest();
+            if (id == 0) return BadRequest();
             var updatedDepartment = await _departmentService.UpdateDepartment(id,dto);
             return Ok(updatedDepartment);
         }
