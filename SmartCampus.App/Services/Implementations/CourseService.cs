@@ -2,26 +2,20 @@
 using SmartCampus.App.Interfaces;
 using SmartCampus.App.Services.IServices;
 using SmartCampus.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmartCampus.App.Services.Implementations
 {
     public class CourseService : ICourseService
     {
-
         private readonly ICourseRepository _courseRepo;
         private readonly IUserRepository _userRepo;
 
-        public CourseService(ICourseRepository courseRepo, IUserRepository userRepo) 
+        public CourseService(ICourseRepository courseRepo, IUserRepository userRepo)
         {
             _courseRepo = courseRepo;
             _userRepo = userRepo;
         }
+
         public async Task<IEnumerable<CourseDTO>> GetAllCourses()
         {
             var courses = await _courseRepo.GetAllCourses();
@@ -32,9 +26,13 @@ namespace SmartCampus.App.Services.Implementations
                 InstructorId = c.InstructorId
             });
         }
+
         public async Task<CourseDTO?> GetCourseById(int id)
         {
             var course = await _courseRepo.GetCourseById(id);
+            if (course == null)
+                return null;
+
             return new CourseDTO
             {
                 Name = course.Name,
@@ -45,7 +43,19 @@ namespace SmartCampus.App.Services.Implementations
 
         public async Task<CreateCourseDTO?> AddCourse(CreateCourseDTO courseDto)
         {
-            if (courseDto.InstructorId == null) throw new Exception("You must assign Instructor for this new course");
+            // Validate instructor exists
+            if (courseDto.InstructorId == 0)
+                throw new ArgumentException("Instructor ID is required for creating a course.");
+
+            var instructor = await _userRepo.GetInstructorById(courseDto.InstructorId);
+            if (instructor == null)
+                throw new InvalidOperationException($"Instructor with ID {courseDto.InstructorId} does not exist.");
+
+            // Validate course code uniqueness (optional - handled by DB constraint too)
+            var existingCourse = await _courseRepo.GetAllCourses();
+            if (existingCourse.Any(c => c.CourseCode == courseDto.CourseCode))
+                throw new InvalidOperationException($"Course code '{courseDto.CourseCode}' already exists.");
+
             var course = new Course
             {
                 CourseCode = courseDto.CourseCode,
@@ -54,145 +64,142 @@ namespace SmartCampus.App.Services.Implementations
                 InstructorId = courseDto.InstructorId,
                 DepartmentId = courseDto.DepartmentId
             };
+
             await _courseRepo.AddCourse(course);
-            return new CreateCourseDTO
-            {
-                CourseCode = courseDto.CourseCode,
-                Name = courseDto.Name,
-                CreditHours = courseDto.CreditHours,
-                InstructorId = courseDto.InstructorId,
-                DepartmentId = courseDto.DepartmentId 
-            };
+            return courseDto;
         }
+
         public async Task<CourseDTO?> UpdateCourse(int id, CourseDTO courseDto)
         {
             var courseExist = await _courseRepo.GetCourseById(id);
             if (courseExist == null)
                 return null;
-            var Newinstructor = courseDto.InstructorId;
-            var instExit=await _userRepo.GetInstructorById(Newinstructor);
-            if (instExit == null) throw new Exception("This Instructor not exist");
-            else
-            {
-                courseExist.Name = courseDto.Name;
-                courseExist.Credits = courseDto.CreditHours;
-                courseExist.InstructorId = courseDto.InstructorId;
-            }
+
+            // Validate new instructor exists
+            var instructor = await _userRepo.GetInstructorById(courseDto.InstructorId);
+            if (instructor == null)
+                throw new InvalidOperationException($"Instructor with ID {courseDto.InstructorId} does not exist.");
+
+            courseExist.Name = courseDto.Name;
+            courseExist.Credits = courseDto.CreditHours;
+            courseExist.InstructorId = courseDto.InstructorId;
+
             var updatedCourse = await _courseRepo.UpdateCourse(courseExist);
+            if (updatedCourse == null)
+                return null;
 
             return new CourseDTO
             {
                 Name = updatedCourse.Name,
-                CreditHours=updatedCourse.Credits,
-                InstructorId=updatedCourse.InstructorId
+                CreditHours = updatedCourse.Credits,
+                InstructorId = updatedCourse.InstructorId
             };
         }
+
         public async Task<bool> DeleteCourse(int id)
         {
-
             var course = await _courseRepo.GetCourseById(id);
-            if (course == null) return false;
+            if (course == null)
+                return false;
 
-            await _courseRepo.DeleteCourse(id);
-            return true;
+            return await _courseRepo.DeleteCourse(id);
         }
 
-
-
-        public async Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentStudentsByCourseID(int CourseID)
+        public async Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentStudentsByCourseID(int courseId)
         {
-            var enrollments = await _courseRepo.GetEnrollmentStudentsByCourseID(CourseID);
-            if (enrollments == null)
+            var course = await _courseRepo.GetEnrollmentStudentsByCourseID(courseId);
+            if (course == null || course.Enrollments == null)
                 return new List<studentEnrollmentDTO>();
 
-            return enrollments.Enrollments.Select(e => new studentEnrollmentDTO
+            return course.Enrollments.Select(e => new studentEnrollmentDTO
             {
-                courseName = enrollments.Name,
-                studentName = e.Student?.FullName ?? "Unknown"
+                courseName = course.Name,
+                courseCode = course.CourseCode,
+                studentName = e.Student?.FullName ?? "Unknown",
+                CreditHours = course.Credits,
+                DepartmentName = course.Department?.Name ?? "Unknown"
             });
-
         }
 
-        public async Task<IEnumerable<EnrollCourseDTO>> GetAllCoursesByDepartmentID(int DepartmentId)
+        public async Task<IEnumerable<EnrollCourseDTO>> GetAllCoursesByDepartmentID(int departmentId)
         {
-           var courses = await _courseRepo.GetAllCoursesByDepartmentID(DepartmentId);
+            var courses = await _courseRepo.GetAllCoursesByDepartmentID(departmentId);
             return courses.Select(c => new EnrollCourseDTO
             {
-                CreditHours= c.Credits,
+                CreditHours = c.Credits,
                 CourseName = c.Name,
-               courseCode= c.CourseCode,
-                DepartmentName=c.Department.Name,
-                
+                courseCode = c.CourseCode,
+                DepartmentName = c.Department?.Name ?? "Unknown"
             });
         }
 
         public async Task<CreateEnrollmentDTO?> AddEnrollCourse(CreateEnrollmentDTO enrollCourseDto)
         {
-            if (enrollCourseDto.StudentId == 0 || enrollCourseDto.CourseId == 0)
-                throw new Exception("StudentId and CourseId are required to enroll in a course.");
-            var existingEnrollment = await _courseRepo.GetEnrollmentByStudentIdAndCourseId(enrollCourseDto.StudentId, enrollCourseDto.CourseId);
+            // Validate input
+            if (enrollCourseDto.StudentId == 0)
+                throw new ArgumentException("Student ID is required for enrollment.");
+
+            if (enrollCourseDto.CourseId == 0)
+                throw new ArgumentException("Course ID is required for enrollment.");
+
+            // Check if student is already enrolled
+            var existingEnrollment = await _courseRepo.GetEnrollmentByStudentIdAndCourseId(
+                enrollCourseDto.StudentId,
+                enrollCourseDto.CourseId);
 
             if (existingEnrollment != null)
-                throw new Exception("Student is already enrolled in this course.");
+                throw new InvalidOperationException("Student is already enrolled in this course.");
+
             var enrollment = new Enrollment
             {
-               
                 CourseId = enrollCourseDto.CourseId,
                 StudentId = enrollCourseDto.StudentId,
-                EnrollmentDate = DateTime.Now
+                EnrollmentDate = DateTime.UtcNow,
+                Status = "Enrolled"
             };
-            
-
 
             await _courseRepo.AddEnrollCourse(enrollment);
+
+            // Return enriched DTO
             return new CreateEnrollmentDTO
             {
+                StudentId = enrollCourseDto.StudentId,
+                CourseId = enrollCourseDto.CourseId,
                 CourseCode = enrollCourseDto.CourseCode,
                 CourseName = enrollCourseDto.CourseName,
                 CreditHours = enrollCourseDto.CreditHours
             };
-         
         }
+
         public async Task<bool> RemoveEnrollCourse(int enrollmentId)
         {
-          var  enrollmentcourse= await _courseRepo.GetCourseById(enrollmentId);
-            if (enrollmentcourse == null) return false;
-            await _courseRepo.RemoveEnrollCourse(enrollmentId);
-            return true;
+            // Fixed: was incorrectly using GetCourseById
+            return await _courseRepo.RemoveEnrollCourse(enrollmentId);
         }
 
         public async Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentsByStudentId(int studentId)
         {
             var enrollments = await _courseRepo.GetEnrollmentsByStudentId(studentId);
-            return enrollments.Select(c => new studentEnrollmentDTO
+            return enrollments.Select(e => new studentEnrollmentDTO
             {
-                courseName = c.Course.Name,
-                studentName = c.Student.FullName,
-
+                courseName = e.Course?.Name ?? "Unknown",
+                courseCode = e.Course?.CourseCode ?? "Unknown",
+                studentName = e.Student?.FullName ?? "Unknown",
+                CreditHours = e.Course?.Credits ?? 0,
+                DepartmentName = e.Course?.Department?.Name ?? "Unknown"
             });
         }
 
-        public async Task<IEnumerable<InstructorCoursesDTO>>GetCoursesByInstructorId(int instructorId)
+        public async Task<IEnumerable<InstructorCoursesDTO>> GetCoursesByInstructorId(int instructorId)
         {
             var courses = await _courseRepo.GetCoursesByInstructorId(instructorId);
             return courses.Select(c => new InstructorCoursesDTO
-            { 
+            {
                 CourseName = c.Name,
                 CourseCode = c.CourseCode,
-                DepartmentName = c.Department.Name,
+                DepartmentName = c.Department?.Name ?? "Unknown",
                 CreditHours = c.Credits,
-                InstructorName = c.Instructor.FullName
-            });
-        }
-
-        public async Task<IEnumerable<CreateEnrollmentDTO>> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId)
-        {
-           var enrollments = await _courseRepo.GetEnrollmentByStudentIdAndCourseId(studentId, courseId);
-            return enrollments.Select(e => new CreateEnrollmentDTO
-            {
-                StudentName = e.Student.FullName,
-                CourseName = e.Course.Name,
-                CreditHours = e.Course.Credits
+                InstructorName = c.Instructor?.FullName ?? "Unknown"
             });
         }
     }

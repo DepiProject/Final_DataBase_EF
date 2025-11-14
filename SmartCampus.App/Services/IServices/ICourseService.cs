@@ -1,6 +1,7 @@
-﻿using SmartCampus.App.DTOs;
-using SmartCampus.Core.Entities;
+﻿
 
+// ICourseService.cs
+using SmartCampus.App.DTOs;
 
 namespace SmartCampus.App.Services.IServices
 {
@@ -12,12 +13,10 @@ namespace SmartCampus.App.Services.IServices
         Task<CourseDTO?> UpdateCourse(int id, CourseDTO courseDto);
         Task<bool> DeleteCourse(int id);
         Task<IEnumerable<InstructorCoursesDTO>> GetCoursesByInstructorId(int instructorId);
-        Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentStudentsByCourseID(int CourseID);
-        Task<IEnumerable<EnrollCourseDTO>> GetAllCoursesByDepartmentID(int DepartmentId);
+        Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentStudentsByCourseID(int courseId);
+        Task<IEnumerable<EnrollCourseDTO>> GetAllCoursesByDepartmentID(int departmentId);
         Task<CreateEnrollmentDTO?> AddEnrollCourse(CreateEnrollmentDTO enrollCourseDto);
         Task<bool> RemoveEnrollCourse(int enrollmentId);
         Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentsByStudentId(int studentId);
-        Task<IEnumerable<CreateEnrollmentDTO>> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId);   
-        
     }
 }

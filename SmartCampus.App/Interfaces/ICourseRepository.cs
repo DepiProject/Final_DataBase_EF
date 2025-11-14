@@ -1,9 +1,5 @@
-﻿using SmartCampus.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SmartCampus.App.DTOs;
+using SmartCampus.Core.Entities;
 
 namespace SmartCampus.App.Interfaces
 {
@@ -14,13 +10,13 @@ namespace SmartCampus.App.Interfaces
         Task<Course?> AddCourse(Course course);
         Task<Course?> UpdateCourse(Course course);
         Task<bool> DeleteCourse(int id);
-
         Task<IEnumerable<Course>> GetCoursesByInstructorId(int instructorId);
-        Task<Course> GetEnrollmentStudentsByCourseID(int CourseID);
-        Task<IEnumerable<Course>> GetAllCoursesByDepartmentID(int DepartmentId);
-        Task<Enrollment?>AddEnrollCourse(Enrollment enrollment);
+        Task<Course?> GetEnrollmentStudentsByCourseID(int courseId);
+        Task<IEnumerable<Course>> GetAllCoursesByDepartmentID(int departmentId);
+        Task<Enrollment?> AddEnrollCourse(Enrollment enrollment);
         Task<bool> RemoveEnrollCourse(int enrollmentId);
         Task<IEnumerable<Enrollment>> GetEnrollmentsByStudentId(int studentId);
-        Task<IEnumerable<Enrollment?>> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId);
+        Task<Enrollment?> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId);
+        Task<bool> IsStudentEnrolledInCourse(int studentId, int courseId);
     }
 }
