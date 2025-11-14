@@ -1,11 +1,4 @@
 ﻿using SmartCampus.App.DTOs;
-using SmartCampus.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace SmartCampus.App.Services.IServices
 {
     public interface IDepartmentService
