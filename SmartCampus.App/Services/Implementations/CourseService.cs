@@ -62,7 +62,8 @@ namespace SmartCampus.App.Services.Implementations
                 Name = courseDto.Name,
                 Credits = courseDto.CreditHours,
                 InstructorId = courseDto.InstructorId,
-                DepartmentId = courseDto.DepartmentId
+                DepartmentId = courseDto.DepartmentId,
+                IsDeleted = false
             };
 
             await _courseRepo.AddCourse(course);
@@ -102,24 +103,49 @@ namespace SmartCampus.App.Services.Implementations
             if (course == null)
                 return false;
 
+            // Soft delete - no need to check for related entities
+            // All related data (exams, attendance, enrollments) remain intact
             return await _courseRepo.DeleteCourse(id);
         }
 
-        public async Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentStudentsByCourseID(int courseId)
+        public async Task<bool> RestoreCourse(int id)
         {
-            var course = await _courseRepo.GetEnrollmentStudentsByCourseID(courseId);
-            if (course == null || course.Enrollments == null)
-                return new List<studentEnrollmentDTO>();
+            return await _courseRepo.RestoreCourse(id);
+        }
 
-            return course.Enrollments.Select(e => new studentEnrollmentDTO
+        public async Task<bool> PermanentlyDeleteCourse(int id)
+        {
+            // This should be used with extreme caution
+            // The repository will check for related entities
+            return await _courseRepo.PermanentlyDeleteCourse(id);
+        }
+
+        public async Task<IEnumerable<CourseDTO>> GetAllCoursesIncludingDeleted()
+        {
+            var courses = await _courseRepo.GetAllCoursesIncludingDeleted();
+            return courses.Select(c => new CourseDTO
             {
-                courseName = course.Name,
-                courseCode = course.CourseCode,
-                studentName = e.Student?.FullName ?? "Unknown",
-                CreditHours = course.Credits,
-                DepartmentName = course.Department?.Name ?? "Unknown"
+                Name = c.Name,
+                CreditHours = c.Credits,
+                InstructorId = c.InstructorId
             });
         }
+
+        //public async Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentStudentsByCourseID(int courseId)
+        //{
+        //    var course = await _courseRepo.GetEnrollmentStudentsByCourseID(courseId);
+        //    if (course == null || course.Enrollments == null)
+        //        return new List<studentEnrollmentDTO>();
+
+        //    return course.Enrollments.Select(e => new studentEnrollmentDTO
+        //    {
+        //        courseName = course.Name,
+        //        courseCode = course.CourseCode,
+        //        studentName = e.Student?.FullName ?? "Unknown",
+        //        CreditHours = course.Credits,
+        //        DepartmentName = course.Department?.Name ?? "Unknown"
+        //    });
+        //}
 
         public async Task<IEnumerable<EnrollCourseDTO>> GetAllCoursesByDepartmentID(int departmentId)
         {
@@ -133,62 +159,66 @@ namespace SmartCampus.App.Services.Implementations
             });
         }
 
-        public async Task<CreateEnrollmentDTO?> AddEnrollCourse(CreateEnrollmentDTO enrollCourseDto)
-        {
-            // Validate input
-            if (enrollCourseDto.StudentId == 0)
-                throw new ArgumentException("Student ID is required for enrollment.");
+        //public async Task<CreateEnrollmentDTO?> AddEnrollCourse(CreateEnrollmentDTO enrollCourseDto)
+        //{
+        //    // Validate input
+        //    if (enrollCourseDto.StudentId == 0)
+        //        throw new ArgumentException("Student ID is required for enrollment.");
 
-            if (enrollCourseDto.CourseId == 0)
-                throw new ArgumentException("Course ID is required for enrollment.");
+        //    if (enrollCourseDto.CourseId == 0)
+        //        throw new ArgumentException("Course ID is required for enrollment.");
 
-            // Check if student is already enrolled
-            var existingEnrollment = await _courseRepo.GetEnrollmentByStudentIdAndCourseId(
-                enrollCourseDto.StudentId,
-                enrollCourseDto.CourseId);
+        //    // Check if course exists and is not deleted
+        //    var course = await _courseRepo.GetCourseById(enrollCourseDto.CourseId);
+        //    if (course == null)
+        //        throw new InvalidOperationException("Course does not exist or has been deleted.");
 
-            if (existingEnrollment != null)
-                throw new InvalidOperationException("Student is already enrolled in this course.");
+        //    // Check if student is already enrolled
+        //    var existingEnrollment = await _courseRepo.GetEnrollmentByStudentIdAndCourseId(
+        //        enrollCourseDto.StudentId,
+        //        enrollCourseDto.CourseId);
 
-            var enrollment = new Enrollment
-            {
-                CourseId = enrollCourseDto.CourseId,
-                StudentId = enrollCourseDto.StudentId,
-                EnrollmentDate = DateTime.UtcNow,
-                Status = "Enrolled"
-            };
+        //    if (existingEnrollment != null)
+        //        throw new InvalidOperationException("Student is already enrolled in this course.");
 
-            await _courseRepo.AddEnrollCourse(enrollment);
+        //    var enrollment = new Enrollment
+        //    {
+        //        CourseId = enrollCourseDto.CourseId,
+        //        StudentId = enrollCourseDto.StudentId,
+        //        EnrollmentDate = DateTime.UtcNow,
+        //        Status = "Enrolled"
+        //    };
 
-            // Return enriched DTO
-            return new CreateEnrollmentDTO
-            {
-                StudentId = enrollCourseDto.StudentId,
-                CourseId = enrollCourseDto.CourseId,
-                CourseCode = enrollCourseDto.CourseCode,
-                CourseName = enrollCourseDto.CourseName,
-                CreditHours = enrollCourseDto.CreditHours
-            };
-        }
+        //    await _courseRepo.AddEnrollCourse(enrollment);
+
+        //    // Return enriched DTO
+        //    return new CreateEnrollmentDTO
+        //    {
+        //        StudentId = enrollCourseDto.StudentId,
+        //        CourseId = enrollCourseDto.CourseId,
+        //        CourseCode = enrollCourseDto.CourseCode,
+        //        CourseName = enrollCourseDto.CourseName,
+        //        CreditHours = enrollCourseDto.CreditHours
+        //    };
+        //}
 
         public async Task<bool> RemoveEnrollCourse(int enrollmentId)
         {
-            // Fixed: was incorrectly using GetCourseById
             return await _courseRepo.RemoveEnrollCourse(enrollmentId);
         }
 
-        public async Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentsByStudentId(int studentId)
-        {
-            var enrollments = await _courseRepo.GetEnrollmentsByStudentId(studentId);
-            return enrollments.Select(e => new studentEnrollmentDTO
-            {
-                courseName = e.Course?.Name ?? "Unknown",
-                courseCode = e.Course?.CourseCode ?? "Unknown",
-                studentName = e.Student?.FullName ?? "Unknown",
-                CreditHours = e.Course?.Credits ?? 0,
-                DepartmentName = e.Course?.Department?.Name ?? "Unknown"
-            });
-        }
+        //public async Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentsByStudentId(int studentId)
+        //{
+        //    var enrollments = await _courseRepo.GetEnrollmentsByStudentId(studentId);
+        //    return enrollments.Select(e => new studentEnrollmentDTO
+        //    {
+        //        courseName = e.Course?.Name ?? "Unknown",
+        //        courseCode = e.Course?.CourseCode ?? "Unknown",
+        //        studentName = e.Student?.FullName ?? "Unknown",
+        //        CreditHours = e.Course?.Credits ?? 0,
+        //        DepartmentName = e.Course?.Department?.Name ?? "Unknown"
+        //    });
+        //}
 
         public async Task<IEnumerable<InstructorCoursesDTO>> GetCoursesByInstructorId(int instructorId)
         {
@@ -200,6 +230,88 @@ namespace SmartCampus.App.Services.Implementations
                 DepartmentName = c.Department?.Name ?? "Unknown",
                 CreditHours = c.Credits,
                 InstructorName = c.Instructor?.FullName ?? "Unknown"
+            });
+        }
+
+        public async Task<CreateEnrollmentDTO?> AddEnrollCourse(CreateEnrollmentDTO enrollCourseDto)
+        {
+            // Validate input
+            if (enrollCourseDto.StudentId == 0)
+                throw new ArgumentException("Student ID is required for enrollment.");
+
+            if (enrollCourseDto.CourseId == 0)
+                throw new ArgumentException("Course ID is required for enrollment.");
+
+            // ✅ Get the course to capture snapshot
+            var course = await _courseRepo.GetCourseById(enrollCourseDto.CourseId);
+            if (course == null)
+                throw new InvalidOperationException("Course does not exist or has been deleted.");
+
+            // Check if student is already enrolled
+            var existingEnrollment = await _courseRepo.GetEnrollmentByStudentIdAndCourseId(
+                enrollCourseDto.StudentId,
+                enrollCourseDto.CourseId);
+
+            if (existingEnrollment != null)
+                throw new InvalidOperationException("Student is already enrolled in this course.");
+
+            // ✅ Create enrollment with course snapshot
+            var enrollment = new Enrollment
+            {
+                CourseId = enrollCourseDto.CourseId,
+                StudentId = enrollCourseDto.StudentId,
+                EnrollmentDate = DateTime.UtcNow,
+                Status = "Enrolled",
+
+                // ✅ Snapshot: خزن بيانات الكورس وقت التسجيل
+                CourseName = course.Name,
+                CourseCode = course.CourseCode,
+                CreditHours = course.Credits,
+                DepartmentName = course.Department?.Name ?? "Unknown"
+            };
+
+            await _courseRepo.AddEnrollCourse(enrollment);
+
+            // Return enriched DTO
+            return new CreateEnrollmentDTO
+            {
+                StudentId = enrollCourseDto.StudentId,
+                CourseId = enrollCourseDto.CourseId,
+                CourseCode = course.CourseCode,
+                CourseName = course.Name,
+                CreditHours = course.Credits
+            };
+        }
+
+        public async Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentsByStudentId(int studentId)
+        {
+            var enrollments = await _courseRepo.GetEnrollmentsByStudentId(studentId);
+            return enrollments.Select(e => new studentEnrollmentDTO
+            {
+                // ✅ استخدم الـ snapshot بدل الـ Course navigation
+                // كده حتى لو الكورس اتمسح، البيانات هتفضل موجودة
+                courseName = e.CourseName,
+                courseCode = e.CourseCode,
+                CreditHours = e.CreditHours,
+                DepartmentName = e.DepartmentName,
+                studentName = e.Student?.FullName ?? "Unknown"
+            });
+        }
+
+        public async Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentStudentsByCourseID(int courseId)
+        {
+            var course = await _courseRepo.GetEnrollmentStudentsByCourseID(courseId);
+            if (course == null || course.Enrollments == null)
+                return new List<studentEnrollmentDTO>();
+
+            return course.Enrollments.Select(e => new studentEnrollmentDTO
+            {
+                // ✅ استخدم الـ snapshot من الـ enrollment
+                courseName = e.CourseName,
+                courseCode = e.CourseCode,
+                CreditHours = e.CreditHours,
+                DepartmentName = e.DepartmentName,
+                studentName = e.Student?.FullName ?? "Unknown"
             });
         }
     }

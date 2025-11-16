@@ -10,6 +10,11 @@
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        // Soft Delete Properties
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
+        public string? DeletedBy { get; set; } // Optional: track who deleted it
+
         // 1 - m
         public int InstructorId { get; set; }
         public Instructor? Instructor { get; set; }

@@ -10,8 +10,13 @@
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        public int CourseId { get; set; }
+        public int? CourseId { get; set; }
         public Course? Course { get; set; }
+        // ✅ Course Snapshot - بيانات الكورس وقت إنشاء الامتحان
+        public string CourseName { get; set; } = string.Empty;
+        public string CourseCode { get; set; } = string.Empty;
+        public int CreditHours { get; set; }    // ✅ Course Snapshot - بيانات الكورس وقت إنشاء الامتحان
+     
 
         public ICollection<ExamQuestion> ExamQuestions { get; set; }  = new List<ExamQuestion>();
         public ICollection<ExamSubmission> ExamSubmissions { get; set; } = new List<ExamSubmission>();

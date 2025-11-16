@@ -18,5 +18,10 @@ namespace SmartCampus.App.Interfaces
         Task<IEnumerable<Enrollment>> GetEnrollmentsByStudentId(int studentId);
         Task<Enrollment?> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId);
         Task<bool> IsStudentEnrolledInCourse(int studentId, int courseId);
+
+        // New methods for soft delete management
+        Task<bool> RestoreCourse(int id);
+        Task<bool> PermanentlyDeleteCourse(int id);
+        Task<IEnumerable<Course>> GetAllCoursesIncludingDeleted();
     }
 }

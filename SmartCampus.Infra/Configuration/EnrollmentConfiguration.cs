@@ -24,6 +24,21 @@ namespace SmartCampus.Infra.Configuration
 
             builder.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("GETUTCDATE()");
+            // ✅ Course Snapshot Properties
+            builder.Property(e => e.CourseName)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            builder.Property(e => e.CourseCode)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            builder.Property(e => e.CreditHours)
+                .IsRequired();
+
+            builder.Property(e => e.DepartmentName)
+                .IsRequired()
+                .HasMaxLength(200);
 
             // Indexes
             builder.HasIndex(e => new { e.StudentId, e.CourseId })
