@@ -107,6 +107,7 @@ namespace SmartCampus.App.Services.Implementations
         public async Task<IEnumerable<EnrollCourseDTO>> GetAllCoursesByDepartmentID(int DepartmentId)
         {
             var courses = await _courseRepo.GetAllCoursesByDepartmentID(DepartmentId);
+            if (courses == null) return null;
             return courses.Select(c => new EnrollCourseDTO
             {
                 CreditHours = c.Credits,
@@ -121,10 +122,10 @@ namespace SmartCampus.App.Services.Implementations
         {
             if (enrollCourseDto.StudentId == 0 || enrollCourseDto.CourseId == 0)
                 throw new Exception("StudentId and CourseId are required to enroll in a course.");
-            var existingEnrollment = await _courseRepo.GetEnrollmentByStudentIdAndCourseId(enrollCourseDto.StudentId, enrollCourseDto.CourseId);
+            //var existingEnrollment = await _courseRepo.GetEnrollmentByStudentIdAndCourseId(enrollCourseDto.StudentId, enrollCourseDto.CourseId);
 
-            if (existingEnrollment != null)
-                throw new Exception("Student is already enrolled in this course.");
+            //if (existingEnrollment != null)
+            //    throw new Exception("Student is already enrolled in this course.");
             var enrollment = new Enrollment
             {
 
@@ -155,6 +156,7 @@ namespace SmartCampus.App.Services.Implementations
         public async Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentsByStudentId(int studentId)
         {
             var enrollments = await _courseRepo.GetEnrollmentsByStudentId(studentId);
+            if (enrollments == null) return null;
             return enrollments.Select(c => new studentEnrollmentDTO
             {
                 courseName = c.Course.Name,
@@ -176,16 +178,16 @@ namespace SmartCampus.App.Services.Implementations
             });
         }
 
-        public async Task<IEnumerable<CreateEnrollmentDTO>> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId)
-        {
-            var enrollments = await _courseRepo.GetEnrollmentByStudentIdAndCourseId(studentId, courseId);
-            return enrollments.Select(e => new CreateEnrollmentDTO
-            {
-                StudentName = e.Student.FullName,
-                CourseName = e.Course.Name,
-                CreditHours = e.Course.Credits
-            });
-        }
+        //public async Task<IEnumerable<CreateEnrollmentDTO>> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId)
+        //{
+        //    var enrollments = await _courseRepo.GetEnrollmentByStudentIdAndCourseId(studentId, courseId);
+        //    return enrollments.Select(e => new CreateEnrollmentDTO
+        //    {
+        //        StudentName = e.Student.FullName,
+        //        CourseName = e.Course.Name,
+        //        CreditHours = e.Course.Credits
+        //    });
+        //}
 
     }
 }

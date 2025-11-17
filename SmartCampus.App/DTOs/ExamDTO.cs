@@ -51,7 +51,6 @@ namespace SmartCampus.App.DTOs
         public int TFQuestionId { get; set; }
         public bool IsCorrect { get; set; }
     }
-
     public class CreateExamDto
     {
         [Required(ErrorMessage = "Title is required")]
@@ -72,7 +71,6 @@ namespace SmartCampus.App.DTOs
         [Required(ErrorMessage = "Course ID is required")]
         public int CourseId { get; set; }
     }
-
     public class CreateQuestionDto
     {
         [Required(ErrorMessage = "Question text is required")]
@@ -94,10 +92,9 @@ namespace SmartCampus.App.DTOs
         [Range(1, 2, ErrorMessage = "Type ID must be 1 (MCQ) or 2 (True/False)")]
         public int TypeId { get; set; }
 
-        //  MCQ questions (TypeId = 1)
+        //  MCQ questions => 1
         public List<CreateMCQOptionDto>? MCQOptions { get; set; }
-
-        //  True/False questions (TypeId = 2)
+        //  TF questions => 2
         public bool? TrueFalseAnswer { get; set; }
     }
 
@@ -132,7 +129,7 @@ namespace SmartCampus.App.DTOs
         // 1 --> MCQ questions
         public List<UpdateMCQOptionDto>? MCQOptions { get; set; }
 
-        // 2 --> True/False questions
+        // 2 --> TF questions
         public bool? TrueFalseAnswer { get; set; }
     }
 

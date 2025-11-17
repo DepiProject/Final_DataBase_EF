@@ -3,7 +3,7 @@ namespace SmartCampus.App.Interfaces
 {
     public interface IExamRepository
     {
-        // Exam CRUD
+        // Exam crud
         Task<IEnumerable<Exam>> GetAllExams();
         Task<IEnumerable<Exam>> GetAllExamsForCourse(int courseId);
         Task<Exam?> GetExamById(int id, int courseId);
@@ -12,20 +12,20 @@ namespace SmartCampus.App.Interfaces
         Task<Exam?> UpdateExam(Exam exam);
         Task<bool> DeleteExam(int id, int courseId);
 
-        // Question CRUD
+        // Question crud
         Task<ExamQuestion?> GetQuestionById(int questionId, int examId);
         Task<ExamQuestion?> AddExamQuestion(ExamQuestion question);
         Task<ExamQuestion?> UpdateExamQuestion(ExamQuestion question);
         Task<bool> DeleteExamQuestion(int questionId, int examId);
         Task<IEnumerable<ExamQuestion>> GetQuestionsByExamId(int examId);
 
-        // MCQ CRUD
+        // MCQ crud
         Task<MCQOption> AddExamMcqOption(MCQOption examOption);
         Task<MCQOption?> UpdateMCQOption(MCQOption option);
         Task<bool> DeleteMCQOption(int optionId);
         Task<IEnumerable<MCQOption>> GetMCQOptionsByQuestionId(int questionId);
 
-        // True/False CRUD
+        // TF crud
         Task<TrueFalseQuestion> AddExamTFQuestion(TrueFalseQuestion trueFalse);
         Task<TrueFalseQuestion?> UpdateTFQuestion(TrueFalseQuestion trueFalse);
         Task<bool> DeleteTFQuestion(int questionId);

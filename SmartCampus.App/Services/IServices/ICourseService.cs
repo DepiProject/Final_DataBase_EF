@@ -1,7 +1,4 @@
 ﻿using SmartCampus.App.DTOs;
-using SmartCampus.Core.Entities;
-
-
 namespace SmartCampus.App.Services.IServices
 {
     public interface ICourseService
@@ -18,7 +15,7 @@ namespace SmartCampus.App.Services.IServices
         Task<CreateEnrollmentDTO?> AddEnrollCourse(CreateEnrollmentDTO enrollCourseDto);
         Task<bool> RemoveEnrollCourse(int enrollmentId);
         Task<IEnumerable<studentEnrollmentDTO>> GetEnrollmentsByStudentId(int studentId);
-        Task<IEnumerable<CreateEnrollmentDTO>> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId);
+        //Task<IEnumerable<CreateEnrollmentDTO>> GetEnrollmentByStudentIdAndCourseId(int studentId, int courseId);
 
 
     }
