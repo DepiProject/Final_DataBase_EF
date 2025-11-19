@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartCampus.Infra.Data;
 
@@ -11,13 +12,15 @@ using SmartCampus.Infra.Data;
 namespace SmartCampus.Infra.Migrations
 {
     [DbContext(typeof(SmartCampusDbContext))]
-    partial class SmartCampusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251114001831_UpdateTFTable")]
+    partial class UpdateTFTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.22")
+                .HasAnnotation("ProductVersion", "8.0.21")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -256,16 +259,8 @@ namespace SmartCampus.Infra.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttendanceId"));
 
-                    b.Property<string>("CourseCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("CourseId")
+                    b.Property<int>("CourseId")
                         .HasColumnType("int");
-
-                    b.Property<string>("CourseName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -285,7 +280,7 @@ namespace SmartCampus.Infra.Migrations
                     b.HasIndex("StudentId", "CourseId", "Date")
                         .IsUnique()
                         .HasDatabaseName("IX_Attendances_UniqueRecord")
-                        .HasFilter("[StudentId] IS NOT NULL AND [CourseId] IS NOT NULL");
+                        .HasFilter("[StudentId] IS NOT NULL");
 
                     b.ToTable("Attendances", (string)null);
                 });
@@ -300,21 +295,16 @@ namespace SmartCampus.Infra.Migrations
 
                     b.Property<string>("CourseCode")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int>("Credits")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
@@ -322,22 +312,19 @@ namespace SmartCampus.Infra.Migrations
                     b.Property<int>("InstructorId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Prerequisites")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("Prerequisites")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.HasKey("CourseId");
 
@@ -348,7 +335,7 @@ namespace SmartCampus.Infra.Migrations
 
                     b.HasIndex("InstructorId");
 
-                    b.ToTable("Courses");
+                    b.ToTable("Courses", (string)null);
                 });
 
             modelBuilder.Entity("SmartCampus.Core.Entities.Department", b =>
@@ -393,31 +380,13 @@ namespace SmartCampus.Infra.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EnrollmentId"));
 
-                    b.Property<string>("CourseCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int?>("CourseId")
+                    b.Property<int>("CourseId")
                         .HasColumnType("int");
-
-                    b.Property<string>("CourseName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<int>("CreditHours")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DepartmentName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("EnrollmentDate")
                         .ValueGeneratedOnAdd()
@@ -446,7 +415,7 @@ namespace SmartCampus.Infra.Migrations
                     b.HasIndex("StudentId", "CourseId")
                         .IsUnique()
                         .HasDatabaseName("IX_Enrollments_Student_Course")
-                        .HasFilter("[StudentId] IS NOT NULL AND [CourseId] IS NOT NULL");
+                        .HasFilter("[StudentId] IS NOT NULL");
 
                     b.ToTable("Enrollments", (string)null);
                 });
@@ -459,24 +428,13 @@ namespace SmartCampus.Infra.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamId"));
 
-                    b.Property<string>("CourseCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("CourseId")
+                    b.Property<int>("CourseId")
                         .HasColumnType("int");
-
-                    b.Property<string>("CourseName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<int>("CreditHours")
-                        .HasColumnType("int");
 
                     b.Property<int>("Duration")
                         .HasColumnType("int");
@@ -822,7 +780,7 @@ namespace SmartCampus.Infra.Migrations
                         .HasColumnType("nvarchar(150)");
 
                     b.Property<decimal>("GPA")
-                        .HasColumnType("decimal(3, 2)");
+                        .HasColumnType("decimal(3, 3)");
 
                     b.Property<string>("Level")
                         .IsRequired()
@@ -842,11 +800,13 @@ namespace SmartCampus.Infra.Migrations
 
                     b.HasKey("StudentId");
 
+                    b.HasAlternateKey("StudentCode")
+                        .HasName("AK_StudentCode");
+
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("StudentCode")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Students_StudentCode");
+                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -927,7 +887,8 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Course", "Course")
                         .WithMany("Attendances")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("SmartCampus.Core.Entities.Student", "Student")
                         .WithMany("Attendances")
@@ -972,7 +933,8 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Course", "Course")
                         .WithMany("Enrollments")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("SmartCampus.Core.Entities.Student", "Student")
                         .WithMany("Enrollments")
@@ -989,7 +951,8 @@ namespace SmartCampus.Infra.Migrations
                     b.HasOne("SmartCampus.Core.Entities.Course", "Course")
                         .WithMany("Exams")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Course");
                 });

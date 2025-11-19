@@ -24,6 +24,7 @@ namespace SmartCampus.App.Services.Implementations
         private const bool ENFORCE_DEPARTMENT_RESTRICTION = true;
 
         public CourseService(ICourseRepository courseRepo, IUserRepository userRepo)
+        public CourseService(ICourseRepository courseRepo, IUserRepository userRepo)
         {
             _courseRepo = courseRepo;
             _userRepo = userRepo;
@@ -120,6 +121,8 @@ namespace SmartCampus.App.Services.Implementations
             return new CourseDTO
             {
                 Name = updatedCourse.Name,
+                CreditHours = updatedCourse.Credits,
+                InstructorId = updatedCourse.InstructorId
                 CreditHours = updatedCourse.Credits,
                 InstructorId = updatedCourse.InstructorId
             };
@@ -294,9 +297,11 @@ namespace SmartCampus.App.Services.Implementations
         }
 
         public async Task<IEnumerable<InstructorCoursesDTO>> GetCoursesByInstructorId(int instructorId)
+        public async Task<IEnumerable<InstructorCoursesDTO>> GetCoursesByInstructorId(int instructorId)
         {
             var courses = await _courseRepo.GetCoursesByInstructorId(instructorId);
             return courses.Select(c => new InstructorCoursesDTO
+            {
             {
                 CourseName = c.Name,
                 CourseCode = c.CourseCode,

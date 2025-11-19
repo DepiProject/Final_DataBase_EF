@@ -1,4 +1,4 @@
-﻿using SmartCampus.App.DTOs;
+using SmartCampus.App.DTOs;
 using SmartCampus.Core.Entities;
 
 namespace SmartCampus.App.Interfaces

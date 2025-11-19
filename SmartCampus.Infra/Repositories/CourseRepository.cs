@@ -6,6 +6,7 @@ using SmartCampus.Infra.Data;
 namespace SmartCampus.Infra.Repositories
 {
     public class CourseRepository : ICourseRepository
+    public class CourseRepository : ICourseRepository
     {
         private readonly SmartCampusDbContext _context;
 
@@ -174,6 +175,7 @@ namespace SmartCampus.Infra.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Enrollment?> AddEnrollCourse(Enrollment enrollment)
         public async Task<Enrollment?> AddEnrollCourse(Enrollment enrollment)
         {
             _context.Enrollments.Add(enrollment);
