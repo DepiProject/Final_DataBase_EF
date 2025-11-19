@@ -20,6 +20,7 @@ namespace SmartCampus.App.DTOs
         public int CreditHours { get; set; }
         public int InstructorId { get; set; }
         public int DepartmentId { get; set; }  
+        public string? Prerequisites { get; set; }
     }
     public class EnrollCourseDTO 
     {

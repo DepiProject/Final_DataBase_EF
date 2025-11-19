@@ -23,5 +23,45 @@ namespace SmartCampus.App.Interfaces
         Task<bool> RestoreCourse(int id);
         Task<bool> PermanentlyDeleteCourse(int id);
         Task<IEnumerable<Course>> GetAllCoursesIncludingDeleted();
+
+  
+        /// Get the number of students currently enrolled in a course
+     
+        Task<int> GetActiveEnrollmentCountByCourseId(int courseId);
+
+       
+        /// Get student's total credit hours for current semester
+
+        Task<int> GetStudentCurrentSemesterCredits(int studentId, DateTime semesterStartDate);
+
+
+        /// Get student's total credit hours for current academic year
+     
+        Task<int> GetStudentCurrentYearCredits(int studentId, DateTime yearStartDate);
+
+    
+        /// Get the number of active (non-deleted) courses taught by instructor
+     
+        Task<int> GetInstructorActiveCourseCount(int instructorId);
+
+      
+        /// Get instructor's total teaching credit hours
+      
+        Task<int> GetInstructorTotalCreditHours(int instructorId);
+
+
+        /// Get list of completed course codes for a student (for prerequisites validation)
+
+        Task<List<string>> GetStudentCompletedCourseCodes(int studentId);
+
+  
+        /// Get courses available for a specific department (for student course visibility)
+      
+        Task<IEnumerable<Course>> GetCoursesByDepartmentForStudent(int departmentId);
+
+    
+        /// Check if a course belongs to a specific department
+    
+        Task<bool> IsCourseBelongsToDepartment(int courseId, int departmentId);
     }
 }

@@ -16,7 +16,6 @@ namespace SmartCampus.Infra.Repositories
 
         public async Task<IEnumerable<Course>> GetAllCourses()
         {
-            // Query filter automatically excludes IsDeleted = true
             return await _context.Courses
                 .Include(c => c.Instructor)
                 .Include(c => c.Department)
@@ -26,7 +25,6 @@ namespace SmartCampus.Infra.Repositories
 
         public async Task<Course?> GetCourseById(int id)
         {
-            // Query filter automatically excludes IsDeleted = true
             return await _context.Courses
                 .Include(c => c.Instructor)
                 .Include(c => c.Department)
@@ -51,7 +49,6 @@ namespace SmartCampus.Infra.Repositories
             if (courseExist == null)
                 return null;
 
-            // Preserve soft delete status during update
             course.IsDeleted = courseExist.IsDeleted;
             course.DeletedAt = courseExist.DeletedAt;
             course.DeletedBy = courseExist.DeletedBy;
@@ -64,7 +61,6 @@ namespace SmartCampus.Infra.Repositories
 
         public async Task<bool> DeleteCourse(int id)
         {
-            // Use IgnoreQueryFilters to find even deleted courses
             var course = await _context.Courses
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c => c.CourseId == id);
@@ -75,16 +71,13 @@ namespace SmartCampus.Infra.Repositories
             if (course.IsDeleted)
                 throw new InvalidOperationException("Course is already deleted.");
 
-            // Soft delete - just mark as deleted
             course.IsDeleted = true;
             course.DeletedAt = DateTime.UtcNow;
-            // Optionally: course.DeletedBy = currentUserId; // if you have user context
 
             await _context.SaveChangesAsync();
             return true;
         }
 
-        // New method to permanently delete a course (use with caution)
         public async Task<bool> PermanentlyDeleteCourse(int id)
         {
             var course = await _context.Courses
@@ -94,7 +87,6 @@ namespace SmartCampus.Infra.Repositories
             if (course == null)
                 return false;
 
-            // Check for related data
             var hasExams = await _context.Exams
                 .IgnoreQueryFilters()
                 .AnyAsync(e => e.CourseId == id);
@@ -121,7 +113,6 @@ namespace SmartCampus.Infra.Repositories
             return true;
         }
 
-        // New method to restore a soft-deleted course
         public async Task<bool> RestoreCourse(int id)
         {
             var course = await _context.Courses
@@ -143,7 +134,6 @@ namespace SmartCampus.Infra.Repositories
             return true;
         }
 
-        // New method to get all courses including deleted ones
         public async Task<IEnumerable<Course>> GetAllCoursesIncludingDeleted()
         {
             return await _context.Courses
@@ -226,6 +216,92 @@ namespace SmartCampus.Infra.Repositories
         {
             return await _context.Enrollments
                 .AnyAsync(e => e.StudentId == studentId && e.CourseId == courseId);
+        }
+
+    
+
+       
+        /// Get active enrollment count for a course
+
+        public async Task<int> GetActiveEnrollmentCountByCourseId(int courseId)
+        {
+            return await _context.Enrollments
+                .Where(e => e.CourseId == courseId && e.Status == "Enrolled")
+                .CountAsync();
+        }
+
+        /// Get student's total credits for current semester
+     
+        public async Task<int> GetStudentCurrentSemesterCredits(int studentId, DateTime semesterStartDate)
+        {
+            return await _context.Enrollments
+                .Where(e => e.StudentId == studentId &&
+                           e.Status == "Enrolled" &&
+                           e.EnrollmentDate >= semesterStartDate)
+                .SumAsync(e => e.CreditHours);
+        }
+
+        /// Get student's total credits for current academic year
+    
+        public async Task<int> GetStudentCurrentYearCredits(int studentId, DateTime yearStartDate)
+        {
+            return await _context.Enrollments
+                .Where(e => e.StudentId == studentId &&
+                           e.Status == "Enrolled" &&
+                           e.EnrollmentDate >= yearStartDate)
+                .SumAsync(e => e.CreditHours);
+        }
+
+     
+        /// Get instructor's active course count
+   
+        public async Task<int> GetInstructorActiveCourseCount(int instructorId)
+        {
+            return await _context.Courses
+                .Where(c => c.InstructorId == instructorId && !c.IsDeleted)
+                .CountAsync();
+        }
+
+        /// Get instructor's total teaching credit hours
+     
+        public async Task<int> GetInstructorTotalCreditHours(int instructorId)
+        {
+            return await _context.Courses
+                .Where(c => c.InstructorId == instructorId && !c.IsDeleted)
+                .SumAsync(c => c.Credits);
+        }
+
+   
+        /// Get completed courses for a student (for prerequisites check)
+    
+        public async Task<List<string>> GetStudentCompletedCourseCodes(int studentId)
+        {
+            return await _context.Enrollments
+                .Where(e => e.StudentId == studentId && e.Status == "Completed")
+                .Select(e => e.CourseCode)
+                .ToListAsync();
+        }
+
+
+        /// Get courses available for a specific department
+        /// Only returns courses that belong to the student's department
+      
+        public async Task<IEnumerable<Course>> GetCoursesByDepartmentForStudent(int departmentId)
+        {
+            return await _context.Courses
+                .Include(c => c.Instructor)
+                .Include(c => c.Department)
+                .Where(c => c.DepartmentId == departmentId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+               /// Check if a course belongs to a specific department
+ 
+        public async Task<bool> IsCourseBelongsToDepartment(int courseId, int departmentId)
+        {
+            return await _context.Courses
+                .AnyAsync(c => c.CourseId == courseId && c.DepartmentId == departmentId);
         }
     }
 }
