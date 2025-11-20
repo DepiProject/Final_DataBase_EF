@@ -106,6 +106,14 @@ namespace SmartCampus.Infra.Repositories
                 a.CourseId == courseId &&
                 a.Date.Date == dateOnly);
         }
+        public async Task<bool> AttendanceExistsWithStatus(int studentId, int courseId, DateTime date, string status)
+        {
+            return await _context.Attendances.AnyAsync(a =>
+                a.StudentId == studentId &&
+                a.CourseId == courseId &&
+                a.Date.Date == date.Date &&
+                a.Status == status);
+        }
 
         public async Task<bool> StudentExists(int studentId)
         {
@@ -116,5 +124,17 @@ namespace SmartCampus.Infra.Repositories
         {
             return await _context.Courses.AnyAsync(c => c.CourseId == courseId);
         }
+        public async Task<bool> IsStudentEnrolledInCourse(int studentId, int courseId)
+        {
+            return await _context.Enrollments
+                .AnyAsync(e => e.StudentId == studentId && e.CourseId == courseId);
+        }
+        public async Task<int> GetDailyAttendanceCount(int studentId, DateTime date)
+        {
+            return await _context.Attendances
+                .CountAsync(a => a.StudentId == studentId && a.Date.Date == date.Date);
+        }
+
+
     }
 }
